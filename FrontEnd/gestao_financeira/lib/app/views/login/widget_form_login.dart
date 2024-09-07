@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:gestao_financeira/app/viewmmodel/login/login_viewmodel.dart';
 import 'package:gestao_financeira/app/widgets/custom_text_form_field.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,6 +29,7 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
               _buildFormSenha(),
               _lembrarSenha(),
               _buildButtonLogin(),
+              _cadastrar()
             ],
           ),
           Positioned(
@@ -72,36 +74,44 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
   }
 
   Widget _buildFormSenha() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
-      child: CustomTextFormField(
-        labelText: "Senha",
-        hintText: "Digite sua senha",
-        controller: TextEditingController(),
-        prefixIcon: const Icon(LucideIcons.lock),
-        suffixIcon: IconButton(
-          icon: widget.viewmodel.chengeObscureText
-              ? const Icon(Icons.visibility_off)
-              : const Icon(Icons.visibility),
-          onPressed: () {
-            setState(() {
-              widget.viewmodel.chengeObscureText =
-                  !widget.viewmodel.chengeObscureText;
-            });
-          },
-        ),
-      ),
+    return Observer(
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
+          child: CustomTextFormField(
+            labelText: "Senha",
+            hintText: "Digite sua senha",
+            controller: TextEditingController(),
+            prefixIcon: const Icon(LucideIcons.lock),
+            suffixIcon: IconButton(
+              icon: widget.viewmodel.chengeObscureText
+                  ? const Icon(Icons.visibility_off)
+                  : const Icon(Icons.visibility),
+              onPressed: () {
+                  widget.viewmodel.changeObscureText();
+              },
+            ),
+          ),
+        );
+      }
     );
   }
 
   Widget _buildButtonLogin() {
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
       child: ElevatedButton(
         onPressed: () {
           // widget.viewmodel.login();
         },
-        child: const Text('Entrar'),
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: const Color(0XFF9AD0D3),
+        ),
+        child: const Text('ENTRAR', style: TextStyle(color: Color(0XFF0A2049)),),
       ),
     );
   }
@@ -125,7 +135,25 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
             onPressed: () {
               // widget.viewmodel.recuperarSenha();
             },
-            child: const Text('Recuperar senha'),
+            child: const Text('Recuperar senha', style: TextStyle(decoration: TextDecoration.underline),),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _cadastrar() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Não tem uma conta?'),
+          TextButton(
+            onPressed: () {
+              // widget.viewmodel.cadastrar();
+            },
+            child: const Text('Cadastre-se', style: TextStyle(decoration: TextDecoration.underline),),
           ),
         ],
       ),

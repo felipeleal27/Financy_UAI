@@ -25,6 +25,20 @@ mixin _$LoginViewModel on LoginViewmodelBase, Store {
     });
   }
 
+  late final _$LoginViewmodelBaseActionController =
+      ActionController(name: 'LoginViewmodelBase', context: context);
+
+  @override
+  void changeObscureText() {
+    final _$actionInfo = _$LoginViewmodelBaseActionController.startAction(
+        name: 'LoginViewmodelBase.changeObscureText');
+    try {
+      return super.changeObscureText();
+    } finally {
+      _$LoginViewmodelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
