@@ -8,7 +8,12 @@ abstract class LoginViewmodelBase with Store {
   @observable
   bool chengeObscureText = false;
 
+  @observable
+  bool lembrarSenha = false;
+
   @action
-  void changeObscureText() =>
-    chengeObscureText = !chengeObscureText;
+  void changeObscureText() => chengeObscureText = !chengeObscureText;
+
+  @action
+  void changeLembrarSenha(bool value) => lembrarSenha = value;
 }

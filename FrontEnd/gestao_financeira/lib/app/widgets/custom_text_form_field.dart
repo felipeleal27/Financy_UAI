@@ -11,6 +11,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool isObscureText;
   final Icon? prefixIcon;
   final Widget? suffixIcon;
+  final ValueChanged<String>? onChanged; // Adicionado
 
   const CustomTextFormField({
     super.key,
@@ -24,6 +25,7 @@ class CustomTextFormField extends StatelessWidget {
     this.isObscureText = false,
     this.prefixIcon,
     this.suffixIcon,
+    this.onChanged, // Adicionado
   });
 
   @override
@@ -51,6 +53,7 @@ class CustomTextFormField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
       ),
+      onChanged: onChanged, // Adicionado
       validator: validator,
     );
   }

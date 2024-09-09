@@ -25,6 +25,22 @@ mixin _$LoginViewModel on LoginViewmodelBase, Store {
     });
   }
 
+  late final _$lembrarSenhaAtom =
+      Atom(name: 'LoginViewmodelBase.lembrarSenha', context: context);
+
+  @override
+  bool get lembrarSenha {
+    _$lembrarSenhaAtom.reportRead();
+    return super.lembrarSenha;
+  }
+
+  @override
+  set lembrarSenha(bool value) {
+    _$lembrarSenhaAtom.reportWrite(value, super.lembrarSenha, () {
+      super.lembrarSenha = value;
+    });
+  }
+
   late final _$LoginViewmodelBaseActionController =
       ActionController(name: 'LoginViewmodelBase', context: context);
 
@@ -40,9 +56,21 @@ mixin _$LoginViewModel on LoginViewmodelBase, Store {
   }
 
   @override
+  void changeLembrarSenha(bool value) {
+    final _$actionInfo = _$LoginViewmodelBaseActionController.startAction(
+        name: 'LoginViewmodelBase.changeLembrarSenha');
+    try {
+      return super.changeLembrarSenha(value);
+    } finally {
+      _$LoginViewmodelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
-chengeObscureText: ${chengeObscureText}
+chengeObscureText: ${chengeObscureText},
+lembrarSenha: ${lembrarSenha}
     ''';
   }
 }

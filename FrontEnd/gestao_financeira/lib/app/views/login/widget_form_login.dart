@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:gestao_financeira/app/viewmmodel/login/login_viewmodel.dart';
+import 'package:gestao_financeira/app/widgets/custom_snack_bar.dart';
 import 'package:gestao_financeira/app/widgets/custom_text_form_field.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -14,94 +15,128 @@ class WidgetFormLogin extends StatefulWidget {
   State<WidgetFormLogin> createState() => _WidgetFormLoginState();
 }
 
+TextEditingController emailController = TextEditingController();
+TextEditingController senhaController = TextEditingController();
+
 class _WidgetFormLoginState extends State<WidgetFormLogin> {
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
 
-    return Form(
-      child: Stack(
-        children: [
-          Column(
+    return Observer(builder: (_) {
+      return SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Stack(
             children: [
-              SizedBox(height: screenSize.height / 2.5),
-              _buildFormEmail(),
-              _buildFormSenha(),
-              _lembrarSenha(),
-              _buildButtonLogin(),
-              _cadastrar()
+              Column(
+                children: [
+                  SizedBox(height: screenSize.height / 2.5),
+                  _buildFormEmail(),
+                  _buildFormSenha(),
+                  _lembrarSenha(),
+                  _buildButtonLogin(),
+                  _cadastrar()
+                ],
+              ),
+              Positioned(
+                top: screenSize.height * 0.15,
+                left: screenSize.width * 0.3,
+                child: Column(
+                  children: [
+                    Image(
+                      image: const AssetImage('assets/img/logo.png'),
+                      height: screenSize.height / 5.5,
+                      width: screenSize.width / 2.5,
+                      fit: BoxFit.contain,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Text(
+                        'Financy uAI',
+                        style: GoogleFonts.shrikhand(
+                          fontSize: 20,
+                          color: const Color(0XFF046DB5),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-          Positioned(
-            top: screenSize.height * 0.15,
-            left: screenSize.width * 0.3,
-            child: Column(
-              children: [
-                Image(
-                  image: const AssetImage('assets/img/logo.png'),
-                  height: screenSize.height / 5.5,
-                  width: screenSize.width / 2.5,
-                  fit: BoxFit.contain,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Text(
-                    'Financy uAI',
-                    style: GoogleFonts.shrikhand(
-                      fontSize: 20,
-                      color: const Color(0XFF046DB5),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 
-  Widget _buildFormEmail() {
+  Widget _buildFormEmail(
+      {String labelText = 'Email', String hintText = 'Digite seu email'}) {
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 50),
       child: CustomTextFormField(
-        labelText: "Email",
-        hintText: "Digite seu email",
-        prefixIcon: const Icon(LucideIcons.mail),
-        controller: TextEditingController(),
+          labelText: labelText,
+          hintText: hintText,
+          prefixIcon: const Icon(LucideIcons.mail),
+          controller: emailController,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Campo obrigatório';
+            }
+            return null;
+          },
+          onChanged: (value) {
+            if (value.isNotEmpty) {
+              _formKey.currentState?.validate();
+            }
+          },
       ),
     );
   }
 
   Widget _buildFormSenha() {
-    return Observer(
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
-          child: CustomTextFormField(
-            labelText: "Senha",
-            hintText: "Digite sua senha",
-            controller: TextEditingController(),
-            prefixIcon: const Icon(LucideIcons.lock),
-            suffixIcon: IconButton(
-              icon: widget.viewmodel.chengeObscureText
-                  ? const Icon(Icons.visibility_off)
-                  : const Icon(Icons.visibility),
-              onPressed: () {
-                  widget.viewmodel.changeObscureText();
-              },
-            ),
-          ),
-        );
-      }
+    return Padding(
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
+      child: CustomTextFormField(
+        labelText: "Senha",
+        hintText: "Digite sua senha",
+        isObscureText: widget.viewmodel.chengeObscureText,
+        controller: senhaController,
+        prefixIcon: const Icon(LucideIcons.lock),
+        suffixIcon: IconButton(
+          icon: widget.viewmodel.chengeObscureText
+              ? const Icon(Icons.visibility_off)
+              : const Icon(Icons.visibility),
+          onPressed: () => widget.viewmodel.changeObscureText(),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Campo obrigatório';
+          }
+          return null;
+        },
+        onChanged: (value) {
+          if (value.isNotEmpty) {
+            _formKey.currentState?.validate();
+          }
+        },
+      ),
     );
   }
 
   Widget _buildButtonLogin() {
     return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 30),
       child: ElevatedButton(
         onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            CustomSnackBar.success(context,
+                text: 'Login realizado com sucesso');
+          } else {
+            CustomSnackBar.info(context,
+                text: 'Preencha os campos obrigatórios!', duration: 1);
+          }
           // widget.viewmodel.login();
         },
         style: ElevatedButton.styleFrom(
@@ -111,7 +146,10 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
           ),
           backgroundColor: const Color(0XFF9AD0D3),
         ),
-        child: const Text('ENTRAR', style: TextStyle(color: Color(0XFF0A2049)),),
+        child: const Text(
+          'ENTRAR',
+          style: TextStyle(color: Color(0XFF0A2049)),
+        ),
       ),
     );
   }
@@ -125,8 +163,10 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
           Row(
             children: [
               Checkbox(
-                value: true,
-                onChanged: (value) {},
+                value: widget.viewmodel.lembrarSenha,
+                onChanged: (value) {
+                  widget.viewmodel.changeLembrarSenha(value ?? false);
+                },
               ),
               const Text('Lembrar senha'),
             ],
@@ -135,7 +175,10 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
             onPressed: () {
               // widget.viewmodel.recuperarSenha();
             },
-            child: const Text('Recuperar senha', style: TextStyle(decoration: TextDecoration.underline),),
+            child: const Text(
+              'Recuperar senha',
+              style: TextStyle(decoration: TextDecoration.underline),
+            ),
           ),
         ],
       ),
@@ -144,16 +187,18 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
 
   Widget _cadastrar() {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 7),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Não tem uma conta?'),
           TextButton(
             onPressed: () {
               // widget.viewmodel.cadastrar();
             },
-            child: const Text('Cadastre-se', style: TextStyle(decoration: TextDecoration.underline),),
+            child: const Text(
+              'Cadastre-se',
+              style: TextStyle(decoration: TextDecoration.underline),
+            ),
           ),
         ],
       ),
