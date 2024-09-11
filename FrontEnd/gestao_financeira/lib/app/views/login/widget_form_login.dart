@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:gestao_financeira/app/viewmmodel/login/login_viewmodel.dart';
+import 'package:gestao_financeira/app/views/cadastro/module/cadastro_nome_rotas.dart';
+import 'package:gestao_financeira/app/views/login/module/login_nome_rotas.dart';
 import 'package:gestao_financeira/app/widgets/custom_snack_bar.dart';
 import 'package:gestao_financeira/app/widgets/custom_text_form_field.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -193,10 +196,9 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
         children: [
           TextButton(
             onPressed: () {
-              // widget.viewmodel.cadastrar();
+              Modular.to.pushNamed('${LoginNomeRotas.modulo}${LoginNomeRotas.login}${CadastroNomeRotas.modulo}${CadastroNomeRotas.cadastro}');
             },
-            child: const Text(
-              'Cadastre-se',
+            child: const Text('Cadastre-se',
               style: TextStyle(decoration: TextDecoration.underline),
             ),
           ),
