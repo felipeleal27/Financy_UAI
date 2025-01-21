@@ -6,13 +6,12 @@ import 'package:gestao_financeira/app/views/splash_screen/splash_screen_page.dar
 
 class SplashScreenModule extends Module {
   @override
-  List<Bind> get binds => [
-    Bind.singleton((i) => SplashScreenViewmodel()),
-  ];
+  void binds(Injector i) {
+    i.addLazySingleton(SplashScreenViewmodel.new);
+  }
 
   @override
-  List<ModularRoute> get routes => [
-    ChildRoute(SplashScreenNomeRotas.inicial, child: (context, args) => const SplashScreenPage()),
-  ];
-  
+  void routes(RouteManager r) {
+    r.child(SplashScreenNomeRotas.inicial, child: (context) => const SplashScreenPage());
+  }
 }

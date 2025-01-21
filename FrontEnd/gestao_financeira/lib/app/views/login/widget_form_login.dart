@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:gestao_financeira/app/viewmmodel/login/login_viewmodel.dart';
+import 'package:gestao_financeira/app/views/home/module/home_nome_rotas.dart';
 import 'package:gestao_financeira/app/widgets/custom_text_form_field.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -134,9 +136,10 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
       child: ElevatedButton(
         onPressed: () {
-          if (_formKey.currentState?.validate() ?? false) {
-            // widget.viewmodel.login();
-          }
+          // if (_formKey.currentState?.validate() ?? false) {
+          //   Modular.to.navigate('${HomeNomeRotas.modulo}${HomeNomeRotas.inicial}');
+          // }
+          Modular.to.navigate('${HomeNomeRotas.modulo}${HomeNomeRotas.inicial}');
         },
         child: const Text('Entrar'),
       ),

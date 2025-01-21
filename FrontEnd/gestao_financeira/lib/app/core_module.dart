@@ -5,9 +5,11 @@ import 'package:gestao_financeira/app/service/rest_client/dio/dio_rest_client.da
 import 'package:gestao_financeira/app/service/rest_client/exceptions/rest_client.dart';
 
 class CoreModule extends Module {
+
   @override
-  final List<Bind> binds = [
-    Bind.factory<RestClient>((i) => DioRestClient(), export: true),
-    Bind.lazySingleton<LocalStorage>((i) => SharedPreferencesLocalStorageImpl(), export: true),
-  ];
+  void exportedBinds(Injector i) {
+    i.addSingleton<RestClient>(DioRestClient.new);
+    i.addSingleton<LocalStorage>(SharedPreferencesLocalStorageImpl.new);
+  }
+  
 }

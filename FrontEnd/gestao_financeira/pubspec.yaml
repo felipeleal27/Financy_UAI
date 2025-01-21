@@ -5,12 +5,13 @@ version: 1.0.0+1
 
 environment:
   sdk: ^3.5.0
+  
 dependencies:
   flutter:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  flutter_modular: ^5.0.3
+  flutter_modular: ^6.3.4
   flutter_mobx: ^2.2.1
   mobx: ^2.3.3+2
   responsive_builder: ^0.7.1
