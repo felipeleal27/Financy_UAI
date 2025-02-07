@@ -16,6 +16,12 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
   final viewmodel = Modular.get<SplashScreenViewmodel>();
 
   @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    await viewmodel.calcularSaldo();
+  }
+
+  @override
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 4), () {
