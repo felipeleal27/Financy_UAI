@@ -60,4 +60,16 @@ class SharedPreferencesLocalStorageImpl implements LocalStorage {
 
     await write<String>("codigoColetor", key);
   }
+
+  @override
+  Future<bool> isFirstAccess() async {
+    final sharedPreferences = await _instace;
+    bool isFirstTime = sharedPreferences.getBool("isFirstAccess") ?? true;
+
+    if (isFirstTime) {
+      await sharedPreferences.setBool("isFirstAccess", false);
+    }
+
+    return isFirstTime;
+  }
 }

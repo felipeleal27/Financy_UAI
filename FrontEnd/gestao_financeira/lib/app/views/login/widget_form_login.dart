@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:gestao_financeira/app/viewmmodel/login/login_viewmodel.dart';
+import 'package:gestao_financeira/app/views/cadastro/module/cadastro_nome_rotas.dart';
 import 'package:gestao_financeira/app/views/home/module/home_nome_rotas.dart';
+import 'package:gestao_financeira/app/views/login/module/login_nome_rotas.dart';
 import 'package:gestao_financeira/app/widgets/custom_text_form_field.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -132,19 +134,63 @@ class _WidgetFormLoginState extends State<WidgetFormLogin> {
   }
 
   Widget _buildButtonLogin() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-      child: ElevatedButton(
-        onPressed: () {
-          // if (_formKey.currentState?.validate() ?? false) {
-          //   Modular.to.navigate('${HomeNomeRotas.modulo}${HomeNomeRotas.inicial}');
-          // }
-          Modular.to.navigate('${HomeNomeRotas.modulo}${HomeNomeRotas.inicial}');
-        },
-        child: const Text('Entrar'),
-      ),
-    );
-  }
+  return Padding(
+    padding: const EdgeInsets.all(20),
+    child: Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(const Color(0XFF9AD0D3)),
+              padding: WidgetStateProperty.all(const EdgeInsets.all(15)),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            onPressed: () {
+              Modular.to.navigate('${HomeNomeRotas.modulo}${HomeNomeRotas.inicial}');
+            },
+            child: const Text(
+              'Entrar',
+              style: TextStyle(color: Color(0XFF0A2049)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            style: ButtonStyle(
+              side: WidgetStateProperty.all(
+                const BorderSide(color: Color(0XFF046DB5)),
+              ),
+              padding: WidgetStateProperty.all(const EdgeInsets.all(15)),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            onPressed: () {
+              Modular.to.pushNamed('${LoginNomeRotas.modulo}${LoginNomeRotas.login}${CadastroNomeRotas.modulo}${CadastroNomeRotas.cadastro}');
+            },
+            child: const Text(
+              'Registrar',
+              style: TextStyle(color: Color(0XFF046DB5)),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+
 
   Widget _lembrarSenha() {
     return Padding(

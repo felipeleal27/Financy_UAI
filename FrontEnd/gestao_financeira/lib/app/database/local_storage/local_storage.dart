@@ -5,6 +5,7 @@ abstract class LocalStorage {
   Future<void> clear();
   Future<void> remove(String key);
   Future<void> clearLogin(String key);
+  Future<bool> isFirstAccess();
 }
 
 abstract class LocalSecureStorage {
@@ -14,4 +15,5 @@ abstract class LocalSecureStorage {
   Future<void> clear();
   Future<void> remove(String key);
   Future<void> clearLogin(String key);
+  Future<bool> isFirstAccess();
 }
