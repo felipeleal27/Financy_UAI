@@ -6,6 +6,8 @@ abstract class LocalStorage {
   Future<void> remove(String key);
   Future<void> clearLogin(String key);
   Future<bool> isFirstAccess();
+  Future<bool> isThemeDark();
+  Future<void> toggleTheme(bool value);
 }
 
 abstract class LocalSecureStorage {
@@ -16,4 +18,6 @@ abstract class LocalSecureStorage {
   Future<void> remove(String key);
   Future<void> clearLogin(String key);
   Future<bool> isFirstAccess();
+  Future<bool> isThemeDark();
+  Future<bool> toggleTheme(bool value);
 }

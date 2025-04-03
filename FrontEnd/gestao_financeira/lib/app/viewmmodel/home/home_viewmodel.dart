@@ -18,16 +18,29 @@ abstract class HomeViewmodelBase with Store {
     required LocalStorage localStorage,
     required HomeRepository homeRepository,
   })  : _localStorage = localStorage,
-        _homeRepository = homeRepository;
+        _homeRepository = homeRepository {
+    mesAtual = DateTime.now().month - 1;
+  }
 
   @observable
   bool carregado = false;
+
+  @observable
+  bool carregouMes = false;
 
   @observable
   int currentIndex = 0;
 
   @observable
   bool canSeeValue = true;
+
+  @observable
+  bool isDark = false;
+
+  @action
+  Future<void> getTheme() async {
+    isDark = await _localStorage.isThemeDark();
+  }
 
   @action
   void setCanSeeValue() => canSeeValue = !canSeeValue;
@@ -51,9 +64,10 @@ abstract class HomeViewmodelBase with Store {
   ]);
 
   @action
-  void mudarMes(int direcao) {
+  Future<void> mudarMes(int direcao) async {
     mesAtual = (mesAtual + direcao) % 12;
     if (mesAtual < 0) mesAtual = 11;
+    await buscarMovimentacoesDoMes();
   }
 
   //Dados do usuário
@@ -65,8 +79,11 @@ abstract class HomeViewmodelBase with Store {
       NumberFormat.currency(locale: 'pt_BR', symbol: '').format(valor);
 
   @action
-  Future<void> atualizarSaldo(double value, bool removendo) async {
-    setSaldo(await _homeRepository.setSaldo(value, removendo));
+  Future<void> atualizarSaldo(MovimentacaoModel mov, bool removendo) async {
+    if (mov.dataMovimentacao.year == DateTime.now().year &&
+        mov.dataMovimentacao.month == DateTime.now().month) {
+      await setSaldo(await _homeRepository.setSaldo(mov, removendo));
+    }
   }
 
   @action
@@ -75,12 +92,12 @@ abstract class HomeViewmodelBase with Store {
   }
 
   //Dados Movimentações
-  ObservableList<MovimentacaoModel> movimentacoes = ObservableList.of([]);
+  ObservableList<MovimentacaoModel> movimentacoesDoMes = ObservableList.of([]);
 
   @action
   void addMovimentacao(MovimentacaoModel? movimentacao) {
     if (movimentacao != null) {
-      movimentacoes.add(movimentacao);
+      movimentacoesDoMes.add(movimentacao);
     }
   }
 
@@ -118,6 +135,7 @@ abstract class HomeViewmodelBase with Store {
 
   @action
   void adicionarCategoriasBase() {
+    categoria.clear();
     categoria.addAll([
       CategoriaModel(nome: 'Alimentação', id: 1, descricao: ''),
       CategoriaModel(nome: 'Transporte', id: 2, descricao: ''),
@@ -136,7 +154,7 @@ abstract class HomeViewmodelBase with Store {
   Map<String, List<MovimentacaoModel>> get movimentacoesPorData {
     final Map<String, List<MovimentacaoModel>> agrupado = {};
 
-    for (var movimentacao in movimentacoes) {
+    for (var movimentacao in movimentacoesDoMes) {
       final dataFormatada =
           DateFormat('dd/MM/yyyy').format(movimentacao.dataMovimentacao);
 
@@ -159,9 +177,10 @@ abstract class HomeViewmodelBase with Store {
   }
 
   @action
-  void removerMovimentacao(MovimentacaoModel movimentacao) {
-    movimentacoes.remove(movimentacao);
-    _homeRepository.removerMovimentacao(movimentacao);
+  Future<void> removerMovimentacao(MovimentacaoModel movimentacao) async {
+    movimentacoesDoMes.remove(movimentacao);
+    await _homeRepository.removerMovimentacao(movimentacao);
+    // calcularSaldoPrevisto(true);
   }
 
   Future<bool> gravarMovimentacao(MovimentacaoModel movimentacao) async {
@@ -177,15 +196,18 @@ abstract class HomeViewmodelBase with Store {
   }
 
   @action
-  Future<void> buscarMovimentacoes() async {
-    movimentacoes.clear();
-    movimentacoes.addAll(await _homeRepository.getMovimentacoes());
+  Future<void> buscarMovimentacoesDoMes() async {
+    carregouMes = false;
+    movimentacoesDoMes.clear();
+    movimentacoesDoMes.addAll(await _homeRepository.getMovimentacoesDoMes(mesAtual + 1));
+    carregouMes = true;
   }
 
   Future<void> buscarDadosIniciais() async {
     carregado = false;
     await setSaldo(double.tryParse(await _localStorage.read('saldo')) ?? 0.0);
-    await buscarMovimentacoes();
+    await buscarMovimentacoesDoMes();
+    await getTheme();
     adicionarCategoriasBase();
     carregado = true;
   }
@@ -223,4 +245,24 @@ abstract class HomeViewmodelBase with Store {
 
   @action
   void isDialogOpen(bool value) => shouldOpenDialog = value;
+
+  // @action
+  // void calcularSaldoPrevisto(bool removendo) {
+  //   double valorDoMes = 0;
+  //   saldoPrevisto = saldo;
+  //   for (var movimento in movimentacoesDoMes) {
+  //     if (removendo) {
+  //       valorDoMes -= movimento.valor;
+  //     } else {
+  //       valorDoMes += movimento.valor;
+  //     }
+  //   }
+  //   saldoPrevisto += valorDoMes;
+  // }
+
+  @computed
+  bool get isMesAtual {
+    final now = DateTime.now();
+    return mesAtual == now.month - 1;
+  }
 }

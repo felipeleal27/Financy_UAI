@@ -18,26 +18,37 @@ class SplashScreenRepositoryImpl extends SplashScreenRepository {
   }
 
   @override
-  Future<bool> calcularSaldoTotal() async {
-    try {
-      if (await primeiroAcesso()) {
-        final db = await DB.instance.database;
-        final query = CommandSql(db);
-        var saldo = await query
-            .rawQuery('SELECT SUM(valor) as saldo FROM movimentacao');
-        if (saldo.isNotEmpty) {
-          await _localStorage.write('saldo', saldo.first['saldo'].toString());
-          return true;
-        } else {
-          return false;
-        }
+Future<bool> calcularSaldoTotal() async {
+  try {
+    if (await primeiroAcesso()) {
+      final db = await DB.instance.database;
+      final query = CommandSql(db);
+
+      // Obtém a data atual
+      DateTime now = DateTime.now();
+      DateTime primeiroDia = DateTime(now.year, now.month, 1);
+      DateTime ultimoDia = DateTime(now.year, now.month + 1, 0);
+
+      var saldo = await query.rawQuery('''
+        SELECT SUM(valor) as saldo 
+        FROM movimentacao
+        WHERE dataMovimentacao BETWEEN ? AND ?
+      ''', [primeiroDia.toIso8601String(), ultimoDia.toIso8601String()]);
+
+      if (saldo.isNotEmpty) {
+        await _localStorage.write('saldo', saldo.first['saldo'].toString());
+        return true;
+      } else {
+        return false;
       }
-      return false;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      return false;
     }
+    return false;
+  } catch (e) {
+    if (kDebugMode) {
+      print(e);
+    }
+    return false;
   }
+}
+
 }

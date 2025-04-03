@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:gestao_financeira/app/utils/bottom_navigation_bar.dart';
 import 'package:gestao_financeira/app/utils/ui_config_theme.dart';
+import 'package:gestao_financeira/app/viewmmodel/configuracoes/configuracoes_viewmodel.dart';
 import 'package:gestao_financeira/app/viewmmodel/home/home_viewmodel.dart';
 import 'package:gestao_financeira/app/views/home/module/home_nome_rotas.dart';
 import 'package:gestao_financeira/app/views/login/module/login_nome_rotas.dart';
@@ -19,6 +21,7 @@ class ConfiguracoesPage extends StatefulWidget {
 }
 
 class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
+  final viewmodel = Modular.get<ConfiguracoesViewmodel>();
   File? _image;
   final ImagePicker _picker = ImagePicker();
 
@@ -61,13 +64,20 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
   }
 
   @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    await viewmodel.getTheme();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: UiConfigTheme.themelight.scaffoldBackgroundColor,
       appBar: AppBar(
-        leading: IconButton(onPressed: () {
-          Modular.to.navigate(HomeNomeRotas.navigate);
-        }, icon: const Icon(Icons.arrow_back_ios)),
+        leading: IconButton(
+            onPressed: () {
+              Modular.to.navigate(HomeNomeRotas.navigate);
+            },
+            icon: const Icon(Icons.arrow_back_ios)),
         title: const Text('Ajustes'),
         centerTitle: true,
       ),
@@ -111,48 +121,80 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                    'Felipe da Silva Leal',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      'Felipe da Silva Leal',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                  'felipe.leal@aluno.unifenas.br',
-                ),
+                    Text(
+                      'felipe.leal@aluno.unifenas.br',
+                    ),
                   ],
                 )
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0, left: 8, right: 8),
-              child: Column(
-                children: [
-                  groupInfo(
-                    title: 'Geral',
-                      [
-                      listTileCard(icon: Icons.person, title: 'Perfil', onTap: () {}),
-                      listTileCard(icon: Icons.nightlight_round, title: 'Tema Claro', onTap: () {}, isSwitch: true),
-                      listTileCard(icon: Icons.logout, title: 'Sair', onTap: () {
-                        Modular.to.navigate(LoginNomeRotas.navigate);
-                      }),
+            Observer(
+              builder: (context) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 20.0, left: 8, right: 8),
+                  child: Column(
+                    children: [
+                      groupInfo(
+                        title: 'Geral',
+                        [
+                          listTileCard(
+                              icon: Icons.person, title: 'Perfil', onTap: () {}),
+                          listTileCard(
+                            onTap: () {},
+                            icon: Icons.nightlight_round,
+                            title: 'Tema Escuro',
+                            isSwitch: true,
+                            switchValue: viewmodel.isDark,
+                            onSwitchChanged: (value) async {
+                              await viewmodel.toggleTheme(value);
+                              setState(() {
+                                UiConfigTheme.toggleTheme();
+                              });
+                              viewmodel.getTheme();
+                            },
+                          ),
+                          listTileCard(
+                              icon: Icons.logout,
+                              title: 'Sair',
+                              onTap: () {
+                                Modular.to.navigate(LoginNomeRotas.navigate);
+                              }),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      groupInfo(title: 'Configurações', [
+                        listTileCard(
+                            icon: Icons.category,
+                            title: 'Adicionar Categoria',
+                            onTap: () {}),
+                        listTileCard(
+                            icon: Icons.attach_money,
+                            title: 'Definir Limite',
+                            onTap: () {}),
+                      ]),
+                      const SizedBox(height: 20),
+                      groupInfo(title: 'Feedback', [
+                        listTileCard(
+                            icon: Icons.warning,
+                            title: 'Reportar um bug',
+                            onTap: () {}),
+                        listTileCard(
+                            icon: Icons.star,
+                            title: 'Avaliar Aplicativo',
+                            onTap: () {
+                              showRatingDialog(context);
+                            }),
+                      ]),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  groupInfo(title: 'Configurações', [
-                    listTileCard(icon: Icons.category, title: 'Adicionar Categoria', onTap: () {}),
-                    listTileCard(icon: Icons.attach_money, title: 'Definir Limite', onTap: () {}),
-                  ]),
-                  const SizedBox(height: 20),
-                    groupInfo(title: 'Feedback', [
-                    listTileCard(icon: Icons.warning, title: 'Reportar um bug', onTap: () {}),
-                    listTileCard(icon: Icons.star, title: 'Avaliar Aplicativo', onTap: () {
-                      showRatingDialog(context);
-                    }),
-                  ]),
-                  
-                ],
-              ),
+                );
+              }
             )
           ],
         ),
@@ -203,13 +245,16 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
     );
   }
 
-  Widget listTileCard(
-      {required IconData icon,
-      required String title,
-      required Function() onTap,
-      bool isSwitch = false}) {
+  Widget listTileCard({
+    required IconData icon,
+    required String title,
+    required Function() onTap,
+    bool isSwitch = false,
+    bool switchValue = false,
+    Function(bool)? onSwitchChanged,
+  }) {
     return ListTile(
-      onTap: onTap,
+      onTap: isSwitch ? null : onTap,
       leading: Card(
         color: UiConfigTheme.themelight.primaryColor,
         child: Padding(
@@ -221,88 +266,95 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
         ),
       ),
       title: Text(title),
-      trailing: !isSwitch ? const Icon(Icons.arrow_forward_ios_outlined) : Switch(value: true, onChanged: (value) {}),
+      trailing: isSwitch
+          ? Switch(
+              value: switchValue,
+              onChanged: (value) {
+                onSwitchChanged?.call(value);
+              },
+            )
+          : const Icon(Icons.arrow_forward_ios_outlined),
     );
   }
 
   void showRatingDialog(BuildContext context) {
-  double rating = 0;
+    double rating = 0;
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Center(child: Text("Avaliar")),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 10),
-            StatefulBuilder(
-              builder: (context, setState) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(5, (index) {
-                    return IconButton(
-                      icon: Icon(
-                        index < rating ? Icons.star : Icons.star_border,
-                        color: Colors.amber,
-                        size: 40,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          rating = index + 1.0;
-                        });
-                      },
-                    );
-                  }),
-                );
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Center(child: Text("Avaliar")),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              StatefulBuilder(
+                builder: (context, setState) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < rating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 40,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            rating = index + 1.0;
+                          });
+                        },
+                      );
+                    }),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (rating > 4) {
+                  showFireworks(context);
+                }
+                CustomSnackBar.success(
+                    context, 'Avaliação enviada com sucesso!');
               },
+              child: const Text("Enviar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showFireworks(BuildContext context) {
+    final overlay = Overlay.of(context);
+
+    OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned.fill(
+        child: Stack(
+          children: [
+            Center(
+              child: Lottie.asset('assets/lottie/confetti.json', repeat: false),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (rating > 4) {
-                showFireworks(context);
-              }
-              CustomSnackBar.success(context, 'Avaliação enviada com sucesso!');
-            },
-            child: const Text("Enviar"),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-void showFireworks(BuildContext context) {
-  final overlay = Overlay.of(context);
-
-  OverlayEntry overlayEntry = OverlayEntry(
-    builder: (context) => Positioned.fill(
-      child: Stack(
-        children: [
-          Center(
-            child: Lottie.asset('assets/lottie/confetti.json', repeat: false),
-          ),
-        ],
       ),
-    ),
-  );
+    );
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    overlay.insert(overlayEntry);
-  });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      overlay.insert(overlayEntry);
+    });
 
-  Future.delayed(const Duration(seconds: 3), () {
-    overlayEntry.remove();
-  });
-}
-
+    Future.delayed(const Duration(seconds: 3), () {
+      overlayEntry.remove();
+    });
+  }
 }

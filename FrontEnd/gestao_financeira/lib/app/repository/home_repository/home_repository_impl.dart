@@ -62,16 +62,16 @@ class HomeRepositoryImpl extends HomeRepository {
   }
 
   @override
-  Future<double> setSaldo(double value, bool removendo) async {
+  Future<double> setSaldo(MovimentacaoModel mov, bool removendo) async {
     try {
       var saldoAtual = await _localStorage.read<String>('saldo');
       double? saldoDouble = double.tryParse(saldoAtual ?? '0');
       if (removendo) {
-        saldoDouble = (saldoDouble ?? 0) - value;
+        saldoDouble = (saldoDouble ?? 0) - mov.valor;
         _localStorage.write('saldo', saldoDouble.toString());
         return saldoDouble;
       } else {
-        saldoDouble = (saldoDouble ?? 0) + value;
+        saldoDouble = (saldoDouble ?? 0) + mov.valor;
         _localStorage.write('saldo', saldoDouble.toString());
         return saldoDouble;
       }
@@ -82,4 +82,34 @@ class HomeRepositoryImpl extends HomeRepository {
       return 0.0;
     }
   }
+
+  @override
+Future<List<MovimentacaoModel>> getMovimentacoesDoMes(int mes) async {
+  try {
+    final db = await DB.instance.database;
+    final query = CommandSql(db);
+
+    final now = DateTime.now();
+    final ano = now.year;
+
+    final primeiroDia = DateTime(ano, mes, 1).millisecondsSinceEpoch;
+    final ultimoDia = DateTime(ano, mes + 1, 0, 23, 59, 59).millisecondsSinceEpoch;
+
+    final result = await query.rawQuery(
+      '''
+      SELECT * FROM movimentacao
+      WHERE DataMovimentacao BETWEEN ? AND ?
+      ''',
+      [primeiroDia, ultimoDia]
+    );
+
+    return result.map((e) => MovimentacaoModel.fromMap(e, sqlLite: true)).toList();
+  } catch (e) {
+    if (kDebugMode) {
+      print(e);
+    }
+    return [];
+  }
+}
+
 }

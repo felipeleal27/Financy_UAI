@@ -72,4 +72,16 @@ class SharedPreferencesLocalStorageImpl implements LocalStorage {
 
     return isFirstTime;
   }
+
+  @override
+  Future<bool> isThemeDark() async {
+    final sharedPreferences = await _instace;
+    return sharedPreferences.getBool("isDark") ?? false;
+  }
+
+  @override
+  Future<void> toggleTheme(bool value) async {
+    final sharedPreferences = await _instace;
+    sharedPreferences.setBool("isDark", value);
+  }
 }

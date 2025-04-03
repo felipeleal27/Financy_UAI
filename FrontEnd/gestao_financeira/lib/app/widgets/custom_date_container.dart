@@ -8,6 +8,7 @@ class CustomDateContainer extends StatelessWidget {
   DateTime? dataSelecionada = DateTime.now();
   final Icon prefixIcon;
   final VoidCallback onTap;
+  final bool isThemeDark;
 
   CustomDateContainer({
     super.key,
@@ -15,6 +16,7 @@ class CustomDateContainer extends StatelessWidget {
     required this.dataSelecionada,
     required this.prefixIcon,
     required this.onTap,
+    required this.isThemeDark,
   });
 
   @override
@@ -22,10 +24,10 @@ class CustomDateContainer extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         height: 60,
         decoration: BoxDecoration(
-          color: const Color(0XFFF7F7F7),
+          color: isThemeDark ? Colors.black : const Color(0XFFF7F7F7),
           borderRadius: BorderRadius.circular(30.0),
           border: Border.all(color: const Color(0XFFCDCDCD), width: 2.0),
         ),
@@ -38,15 +40,12 @@ class CustomDateContainer extends StatelessWidget {
                 dataSelecionada == null ? labelText : DateFormat('dd/MM/yyyy').format(dataSelecionada!),
                 style: const TextStyle(
                   fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
                 ),
               ),
             ),
             const Icon(
               Icons.arrow_forward_ios,
-              color: Colors.black54,
-              size: 18.0,
+              size: 16.0,
             ),
           ],
         ),

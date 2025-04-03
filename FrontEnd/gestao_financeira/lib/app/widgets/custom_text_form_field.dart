@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gestao_financeira/app/utils/ui_config_theme.dart';
 import 'package:intl/intl.dart';
 
 class CustomTextFormField extends StatefulWidget {
@@ -15,7 +16,8 @@ class CustomTextFormField extends StatefulWidget {
   final Icon? prefixIcon;
   final Widget? suffixIcon;
   final bool isCurrency;
-  final TextCapitalization textCapitalization; // Adicionando este parâmetro
+  final TextCapitalization textCapitalization;
+  final bool isDespesa;
 
   const CustomTextFormField({
     super.key,
@@ -31,7 +33,8 @@ class CustomTextFormField extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.isCurrency = false,
-    this.textCapitalization = TextCapitalization.none, // Valor padrão
+    this.textCapitalization = TextCapitalization.none,
+    this.isDespesa = true,
   });
 
   @override
@@ -111,14 +114,13 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       inputFormatters:
           widget.isCurrency ? [FilteringTextInputFormatter.digitsOnly] : null,
       obscureText: widget.isObscureText,
-      textCapitalization: widget.textCapitalization, // Definindo o comportamento da capitalização
+      textCapitalization: widget.textCapitalization,
       decoration: InputDecoration(
         labelText: widget.labelText,
         labelStyle: const TextStyle(fontSize: 16.0),
         hintText: widget.hintText,
         hintStyle: const TextStyle(fontStyle: FontStyle.italic),
         filled: true,
-        fillColor: const Color(0XFFF7F7F7),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
         border: OutlineInputBorder(
@@ -134,13 +136,14 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           borderSide: const BorderSide(color: Colors.black, width: 2.0),
         ),
         prefixIcon: widget.isCurrency
-            ? const Padding(
-                padding: EdgeInsets.only(left: 16.0, right: 8.0),
+            ? Padding(
+                padding: const EdgeInsets.only(left: 16.0, right: 8.0),
                 child: Text(
                   'R\$',
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
+                    color: UiConfigTheme.themelight.colorScheme.primary,
                   ),
                 ),
               )

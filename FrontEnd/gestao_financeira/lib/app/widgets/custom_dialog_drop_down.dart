@@ -10,6 +10,9 @@ class CustomDialogDropdown<T> extends StatelessWidget {
   final String title;
   final String labelText;
   final GlobalKey<FormState> formkey;
+  final Icon? prefixIcon;
+  final String hintText;
+  final bool isThemeDark;
 
   const CustomDialogDropdown({
     super.key,
@@ -21,7 +24,10 @@ class CustomDialogDropdown<T> extends StatelessWidget {
     this.validator,
     this.title = "Selecione um item",
     this.labelText = "Selecionar Item",
+    this.hintText = "Selecione um item",
     required this.formkey,
+    this.prefixIcon,
+    required this.isThemeDark,
   });
 
   void _showDialog(BuildContext context, ValueChanged<T> onSelected) {
@@ -138,10 +144,11 @@ class CustomDialogDropdown<T> extends StatelessWidget {
           },
           child: InputDecorator(
             decoration: InputDecoration(
+              prefixIcon: prefixIcon,
               labelText: labelText,
               labelStyle: const TextStyle(fontSize: 16.0),
               filled: true,
-              fillColor: const Color(0XFFF7F7F7),
+              fillColor: isThemeDark ? Colors.black : const Color(0XFFF7F7F7),
               contentPadding:
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
               border: OutlineInputBorder(
@@ -165,7 +172,7 @@ class CustomDialogDropdown<T> extends StatelessWidget {
                 Text(
                   itemSelected != null
                       ? itemLabel(itemSelected as T)
-                      : 'Nenhum item selecionado',
+                      : hintText,
                   style: const TextStyle(fontSize: 16.0),
                 ),
                 const Icon(Icons.arrow_drop_down),

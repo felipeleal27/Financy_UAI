@@ -19,6 +19,13 @@ mixin _$HomeViewmodel on HomeViewmodelBase, Store {
                   () => super.movimentacoesPorData,
                   name: 'HomeViewmodelBase.movimentacoesPorData'))
           .value;
+  Computed<bool>? _$isMesAtualComputed;
+
+  @override
+  bool get isMesAtual =>
+      (_$isMesAtualComputed ??= Computed<bool>(() => super.isMesAtual,
+              name: 'HomeViewmodelBase.isMesAtual'))
+          .value;
 
   late final _$carregadoAtom =
       Atom(name: 'HomeViewmodelBase.carregado', context: context);
@@ -33,6 +40,22 @@ mixin _$HomeViewmodel on HomeViewmodelBase, Store {
   set carregado(bool value) {
     _$carregadoAtom.reportWrite(value, super.carregado, () {
       super.carregado = value;
+    });
+  }
+
+  late final _$carregouMesAtom =
+      Atom(name: 'HomeViewmodelBase.carregouMes', context: context);
+
+  @override
+  bool get carregouMes {
+    _$carregouMesAtom.reportRead();
+    return super.carregouMes;
+  }
+
+  @override
+  set carregouMes(bool value) {
+    _$carregouMesAtom.reportWrite(value, super.carregouMes, () {
+      super.carregouMes = value;
     });
   }
 
@@ -65,6 +88,22 @@ mixin _$HomeViewmodel on HomeViewmodelBase, Store {
   set canSeeValue(bool value) {
     _$canSeeValueAtom.reportWrite(value, super.canSeeValue, () {
       super.canSeeValue = value;
+    });
+  }
+
+  late final _$isDarkAtom =
+      Atom(name: 'HomeViewmodelBase.isDark', context: context);
+
+  @override
+  bool get isDark {
+    _$isDarkAtom.reportRead();
+    return super.isDark;
+  }
+
+  @override
+  set isDark(bool value) {
+    _$isDarkAtom.reportWrite(value, super.isDark, () {
+      super.isDark = value;
     });
   }
 
@@ -229,13 +268,29 @@ mixin _$HomeViewmodel on HomeViewmodelBase, Store {
     });
   }
 
+  late final _$getThemeAsyncAction =
+      AsyncAction('HomeViewmodelBase.getTheme', context: context);
+
+  @override
+  Future<void> getTheme() {
+    return _$getThemeAsyncAction.run(() => super.getTheme());
+  }
+
+  late final _$mudarMesAsyncAction =
+      AsyncAction('HomeViewmodelBase.mudarMes', context: context);
+
+  @override
+  Future<void> mudarMes(int direcao) {
+    return _$mudarMesAsyncAction.run(() => super.mudarMes(direcao));
+  }
+
   late final _$atualizarSaldoAsyncAction =
       AsyncAction('HomeViewmodelBase.atualizarSaldo', context: context);
 
   @override
-  Future<void> atualizarSaldo(double value, bool removendo) {
+  Future<void> atualizarSaldo(MovimentacaoModel mov, bool removendo) {
     return _$atualizarSaldoAsyncAction
-        .run(() => super.atualizarSaldo(value, removendo));
+        .run(() => super.atualizarSaldo(mov, removendo));
   }
 
   late final _$setSaldoAsyncAction =
@@ -246,13 +301,23 @@ mixin _$HomeViewmodel on HomeViewmodelBase, Store {
     return _$setSaldoAsyncAction.run(() => super.setSaldo(value));
   }
 
-  late final _$buscarMovimentacoesAsyncAction =
-      AsyncAction('HomeViewmodelBase.buscarMovimentacoes', context: context);
+  late final _$removerMovimentacaoAsyncAction =
+      AsyncAction('HomeViewmodelBase.removerMovimentacao', context: context);
 
   @override
-  Future<void> buscarMovimentacoes() {
-    return _$buscarMovimentacoesAsyncAction
-        .run(() => super.buscarMovimentacoes());
+  Future<void> removerMovimentacao(MovimentacaoModel movimentacao) {
+    return _$removerMovimentacaoAsyncAction
+        .run(() => super.removerMovimentacao(movimentacao));
+  }
+
+  late final _$buscarMovimentacoesDoMesAsyncAction = AsyncAction(
+      'HomeViewmodelBase.buscarMovimentacoesDoMes',
+      context: context);
+
+  @override
+  Future<void> buscarMovimentacoesDoMes() {
+    return _$buscarMovimentacoesDoMesAsyncAction
+        .run(() => super.buscarMovimentacoesDoMes());
   }
 
   late final _$HomeViewmodelBaseActionController =
@@ -264,17 +329,6 @@ mixin _$HomeViewmodel on HomeViewmodelBase, Store {
         name: 'HomeViewmodelBase.setCanSeeValue');
     try {
       return super.setCanSeeValue();
-    } finally {
-      _$HomeViewmodelBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void mudarMes(int direcao) {
-    final _$actionInfo = _$HomeViewmodelBaseActionController.startAction(
-        name: 'HomeViewmodelBase.mudarMes');
-    try {
-      return super.mudarMes(direcao);
     } finally {
       _$HomeViewmodelBaseActionController.endAction(_$actionInfo);
     }
@@ -369,17 +423,6 @@ mixin _$HomeViewmodel on HomeViewmodelBase, Store {
   }
 
   @override
-  void removerMovimentacao(MovimentacaoModel movimentacao) {
-    final _$actionInfo = _$HomeViewmodelBaseActionController.startAction(
-        name: 'HomeViewmodelBase.removerMovimentacao');
-    try {
-      return super.removerMovimentacao(movimentacao);
-    } finally {
-      _$HomeViewmodelBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void selectDespesa() {
     final _$actionInfo = _$HomeViewmodelBaseActionController.startAction(
         name: 'HomeViewmodelBase.selectDespesa');
@@ -416,8 +459,10 @@ mixin _$HomeViewmodel on HomeViewmodelBase, Store {
   String toString() {
     return '''
 carregado: ${carregado},
+carregouMes: ${carregouMes},
 currentIndex: ${currentIndex},
 canSeeValue: ${canSeeValue},
+isDark: ${isDark},
 mesAtual: ${mesAtual},
 saldo: ${saldo},
 nomeMovimentacao: ${nomeMovimentacao},
@@ -428,7 +473,8 @@ categoriaSelecionada: ${categoriaSelecionada},
 isSelectedDespesa: ${isSelectedDespesa},
 isSelectedReceita: ${isSelectedReceita},
 shouldOpenDialog: ${shouldOpenDialog},
-movimentacoesPorData: ${movimentacoesPorData}
+movimentacoesPorData: ${movimentacoesPorData},
+isMesAtual: ${isMesAtual}
     ''';
   }
 }

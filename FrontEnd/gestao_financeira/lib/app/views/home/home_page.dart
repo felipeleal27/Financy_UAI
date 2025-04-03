@@ -35,8 +35,6 @@ class _HomePageState extends State<HomePage> {
       (p0) => true,
       () async {
         await viewmodel.buscarDadosIniciais();
-
-        // widget.controller.setCarregado(true);
       },
     ));
   }
@@ -44,66 +42,75 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     if (viewmodel.shouldOpenDialog) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            showDialogDespesaReceita(context);
-            viewmodel.isDialogOpen(false);
-          });
-        }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialogDespesaReceita(context);
+        viewmodel.isDialogOpen(false);
+      });
+    }
 
     return Scaffold(
       body: Observer(builder: (context) {
-        return viewmodel.carregado ? Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            AppBarHome(viewmodel: viewmodel),
-            Padding(
-              padding: const EdgeInsets.only(left: 25.0, right: 25, top: 20),
-              child: CustomTextFormField(
-                labelText: 'Buscar',
-                hintText: 'Buscar',
-                prefixIcon: const Icon(Icons.search),
-                controller: TextEditingController(),
-                onChanged: (value) {},
-              ),
-            ),
-            viewmodel.movimentacoes.isNotEmpty
-                ? Expanded(
-                    child: ListView.builder(
-                      itemCount: viewmodel.movimentacoesPorData.keys.length,
-                      itemBuilder: (context, index) {
-                        final data = viewmodel.movimentacoesPorData.keys
-                            .elementAt(index);
-                        final movimentacoes =
-                            viewmodel.movimentacoesPorData[data]!;
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 12, left: 20),
-                              child: Text(
-                                data,
-                                style: const TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                            ...movimentacoes.map((movimentacao) {
-                              return _cardTransacao(movimentacao);
-                            }),
-                          ],
-                        );
-                      },
+        return viewmodel.carregado
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  AppBarHome(viewmodel: viewmodel),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 25.0, right: 25, top: 20),
+                    child: CustomTextFormField(
+                      labelText: 'Buscar',
+                      hintText: 'Buscar',
+                      prefixIcon: const Icon(Icons.search),
+                      controller: TextEditingController(),
+                      onChanged: (value) {},
                     ),
-                  )
-                : const Padding(
-                    padding: EdgeInsets.only(top: 35.0),
-                    child: Text('Nenhuma movimentação encontrada'),
                   ),
-          ],
-        ) : const Center(child: CircularProgressIndicator());
+                  if (viewmodel.movimentacoesDoMes.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Nenhuma movimentação encontrada'),
+                    ),
+                  viewmodel.carregouMes
+                      ? Expanded(
+                          child: ListView.builder(
+                            itemCount:
+                                viewmodel.movimentacoesPorData.keys.length,
+                            itemBuilder: (context, index) {
+                              final data = viewmodel.movimentacoesPorData.keys
+                                  .elementAt(index);
+                              final movimentacoes =
+                                  viewmodel.movimentacoesPorData[data]!;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 12, left: 20),
+                                    child: Text(
+                                      data,
+                                      style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  ...movimentacoes.map((movimentacao) {
+                                    return _cardTransacao(movimentacao);
+                                  }),
+                                ],
+                              );
+                            },
+                          ),
+                        )
+                      : const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                ],
+              )
+            : const Center(child: CircularProgressIndicator());
       }),
       floatingActionButton: SizedBox(
         width: 70,
@@ -137,7 +144,6 @@ class _HomePageState extends State<HomePage> {
           top: Radius.circular(16.0),
         ),
       ),
-      backgroundColor: Colors.white,
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
@@ -232,7 +238,6 @@ class _HomePageState extends State<HomePage> {
           top: Radius.circular(16.0),
         ),
       ),
-      backgroundColor: Colors.white,
       builder: (context) {
         return Observer(builder: (_) {
           return Form(
@@ -275,6 +280,10 @@ class _HomePageState extends State<HomePage> {
                         viewmodel.setNomeMovimentacao(value);
                       },
                       textCapitalization: TextCapitalization.sentences,
+                      prefixIcon: Icon(
+                        isDespesa ? Icons.remove_circle : Icons.add_circle,
+                        color: UiConfigTheme.themelight.colorScheme.primary,
+                      ),
                     ),
                     const SizedBox(height: 14.0),
                     CustomTextFormField(
@@ -300,13 +309,16 @@ class _HomePageState extends State<HomePage> {
                           viewmodel.setValor(parsedValue);
                         }
                       },
+                      isDespesa: isDespesa,
                     ),
                     const SizedBox(height: 14.0),
                     CustomDateContainer(
                       labelText: 'Data',
                       dataSelecionada: viewmodel.dataSelecionada,
-                      prefixIcon: const Icon(Icons.calendar_today,
-                          color: Colors.black54),
+                      prefixIcon: Icon(
+                        Icons.calendar_today,
+                        color: UiConfigTheme.themelight.colorScheme.primary,
+                      ),
                       onTap: () async {
                         DateTime? selectedDate = await showDatePicker(
                           context: context,
@@ -320,6 +332,7 @@ class _HomePageState extends State<HomePage> {
                           viewmodel.setDataSelecionada(selectedDate);
                         }
                       },
+                      isThemeDark: viewmodel.isDark,
                     ),
                     const SizedBox(height: 14.0),
                     CustomDialogDropdown<CategoriaModel>(
@@ -338,13 +351,47 @@ class _HomePageState extends State<HomePage> {
                       validator: (value) =>
                           value == null ? "Selecione uma categoria" : null,
                       formkey: formKey,
+                      prefixIcon: Icon(
+                        Icons.category,
+                        color: UiConfigTheme.themelight.colorScheme.primary,
+                      ),
+                      hintText: 'Categoria',
+                      isThemeDark: viewmodel.isDark,
+                    ),
+                    const SizedBox(height: 14.0),
+                    CustomDialogDropdown<CategoriaModel>(
+                      items: viewmodel.categoria,
+                      itemSelected: viewmodel.categoriaSelecionada,
+                      onChange: (categoria) {
+                        setState(() {
+                          viewmodel.categoriaSelecionada = categoria;
+                        });
+                      },
+                      itemLabel: (categoria) => categoria.nome,
+                      dialogBackground: Colors.grey[200],
+                      labelText: viewmodel.categoriaSelecionada != null
+                          ? 'Forma de pagamento'
+                          : '',
+                      validator: (value) => value == null
+                          ? "Selecione a forma de pagamento"
+                          : null,
+                      formkey: formKey,
+                      prefixIcon: Icon(
+                        Icons.payment,
+                        color: UiConfigTheme.themelight.colorScheme.primary,
+                      ),
+                      hintText: 'Forma de pagamento',
+                      isThemeDark: viewmodel.isDark,
                     ),
                     const SizedBox(height: 14.0),
                     CustomTextFormField(
                       labelText: 'Descrição',
                       hintText: 'Descrição',
                       controller: TextEditingController(),
-                      prefixIcon: const Icon(Icons.description),
+                      prefixIcon: Icon(
+                        Icons.description,
+                        color: UiConfigTheme.themelight.colorScheme.primary,
+                      ),
                       onChanged: (value) {},
                       textCapitalization: TextCapitalization.sentences,
                     ),
@@ -369,7 +416,8 @@ class _HomePageState extends State<HomePage> {
                               if (formKey.currentState!.validate()) {
                                 viewmodel.addMovimentacao(
                                   MovimentacaoModel(
-                                    id: (viewmodel.movimentacoes.length + 1),
+                                    id: (viewmodel.movimentacoesDoMes.length +
+                                        1),
                                     nome: viewmodel.nomeMovimentacao,
                                     valor: viewmodel.valor,
                                     idCategoria:
@@ -394,10 +442,11 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 );
                                 await viewmodel.atualizarSaldo(
-                                    viewmodel.valor, false);
+                                    viewmodel.movimentacoesDoMes.last, false);
                                 viewmodel.limparDados();
                                 valorController =
                                     TextEditingController(text: '');
+                                await viewmodel.buscarMovimentacoesDoMes();
                                 Modular.to.pop();
                               }
                             },
@@ -434,137 +483,137 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _cardTransacao(MovimentacaoModel movimentacao) {
-    return Observer(
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 25, right: 25, top: 15),
-          child: Slidable(
-            endActionPane: ActionPane(
-              motion: const ScrollMotion(),
-              extentRatio: 0.4,
-              children: [
-                CustomSlidableAction(
-                  onPressed: (context) async {
-                    viewmodel.removerMovimentacao(movimentacao);
-                    await viewmodel.atualizarSaldo(movimentacao.valor, true);
-                  },
-                  padding: EdgeInsets.zero,
-                  child: Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFE4A49),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15),
-                        bottomLeft: Radius.circular(15),
-                      ),
-                    ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.delete, color: Colors.white, size: 24),
-                        SizedBox(height: 5),
-                        Text(
-                          'Remover',
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+    return Observer(builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 25, right: 25, top: 15),
+        child: Slidable(
+          endActionPane: ActionPane(
+            motion: const ScrollMotion(),
+            extentRatio: 0.4,
+            children: [
+              CustomSlidableAction(
+                onPressed: (context) async {
+                  await viewmodel.removerMovimentacao(movimentacao);
+                  await viewmodel.atualizarSaldo(movimentacao, true);
+                },
+                padding: EdgeInsets.zero,
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFE4A49),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      bottomLeft: Radius.circular(15),
                     ),
                   ),
-                ),
-                CustomSlidableAction(
-                  onPressed: (context) {},
-                  padding: EdgeInsets.zero,
-                  child: Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF21B7CA),
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        bottomRight: Radius.circular(15),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.delete, color: Colors.white, size: 24),
+                      SizedBox(height: 5),
+                      Text(
+                        'Remover',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.more_horiz, color: Colors.white, size: 24),
-                        SizedBox(height: 5),
-                        Text(
-                          'Mais',
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: movimentacao.isSaida
-                    ? const Color(0xFFFFEBEE)
-                    : const Color(0xFFE8F5E9),
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundColor:
-                              UiConfigTheme.themelight.colorScheme.primary,
-                          child: const Icon(
-                            Icons.car_crash,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              movimentacao.nome,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              viewmodel.categoria
-                                  .firstWhere(
-                                      (e) => movimentacao.idCategoria == e.id)
-                                  .nome,
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+              CustomSlidableAction(
+                onPressed: (context) {},
+                padding: EdgeInsets.zero,
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF21B7CA),
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(15),
+                      bottomRight: Radius.circular(15),
                     ),
-                    Text(
-                      viewmodel.canSeeValue
-                          ? NumberFormat.currency(
-                                  locale: 'pt_BR', symbol: 'R\$', decimalDigits: 2)
-                              .format(movimentacao.valor)
-                          : 'R\$ ***',
-                      style: TextStyle(
-                        color: movimentacao.isSaida ? Colors.red : Colors.green,
-                        fontWeight: FontWeight.bold,
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.more_horiz, color: Colors.white, size: 24),
+                      SizedBox(height: 5),
+                      Text(
+                        'Mais',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+              ),
+            ],
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: movimentacao.isSaida
+                  ? const Color(0xFFFFEBEE)
+                  : const Color(0xFFE8F5E9),
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor:
+                            UiConfigTheme.themelight.colorScheme.primary,
+                        child: const Icon(
+                          Icons.car_crash,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            movimentacao.nome,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            viewmodel.categoria
+                                .firstWhere(
+                                    (e) => movimentacao.idCategoria == e.id)
+                                .nome,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Text(
+                    viewmodel.canSeeValue
+                        ? NumberFormat.currency(
+                                locale: 'pt_BR',
+                                symbol: 'R\$',
+                                decimalDigits: 2)
+                            .format(movimentacao.valor)
+                        : 'R\$ ***',
+                    style: TextStyle(
+                      color: movimentacao.isSaida ? Colors.red : Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      }
-    );
+        ),
+      );
+    });
   }
 }

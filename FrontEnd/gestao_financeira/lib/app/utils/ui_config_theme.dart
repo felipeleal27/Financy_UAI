@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gestao_financeira/app/database/local_storage/shared_preferences/shared_preferences_local_storage_impl.dart';
 
 class UiConfigTheme {
   UiConfigTheme._();
 
   static String get title => 'Financy_UAI';
+
+  static final ValueNotifier<ThemeMode> themeMode =
+      ValueNotifier(ThemeMode.light);
+
+  static void toggleTheme() async {
+    final localStorage = SharedPreferencesLocalStorageImpl();
+    final isDark = await localStorage.isThemeDark();
+    themeMode.value = isDark ? ThemeMode.dark : ThemeMode.light;
+  }
 
   static ThemeData get themelight => ThemeData(
         useMaterial3: true,
@@ -32,42 +42,25 @@ class UiConfigTheme {
             systemNavigationBarIconBrightness: Brightness.light,
           ),
         ),
-        colorScheme: const ColorScheme(
-          brightness: Brightness.light,
+        iconTheme: const IconThemeData(
+          color: Colors.black,
+        ),
+        colorScheme: const ColorScheme.light(
           primary: Color(0xFF9AD0D3),
-          onPrimary: Color(0xFFFFFFFF),
-          primaryContainer: Color(0xFF8DFB77),
-          onPrimaryContainer: Color(0xFF002200),
-          secondary: Color.fromARGB(255, 69, 133, 206),
-          onSecondary: Color(0xFFFFFFFF),
-          secondaryContainer: Color.fromARGB(255, 0, 229, 245),
-          onSecondaryContainer: Color(0xFF002200),
-          tertiary: Color.fromARGB(255, 20, 99, 216),
-          onTertiary: Color(0xFFFFFFFF),
-          tertiaryContainer: Color(0xFFB1F49D),
-          onTertiaryContainer: Color(0xFF012200),
-          error: Color(0xFFBA1A1A),
-          errorContainer: Color(0xFFFFDAD6),
-          onError: Color(0xFFFFFFFF),
-          onErrorContainer: Color(0xFF410002),
+          secondary: Color(0xFF457B9D),
           surface: Color(0xFFFCFDF6),
-          onSurface: Color(0xFF1A1C18),
-          onSurfaceVariant: Color(0xFF43483F),
-          outline: Color(0xFF73796E),
-          onInverseSurface: Color(0xFFF1F1EB),
-          inverseSurface: Color(0xFF2F312D),
-          inversePrimary: Color(0xFF72DE5E),
-          shadow: Color(0xFF000000),
-          surfaceTint: Color(0xFF9AD0D3),
-          outlineVariant: Color(0xFFC3C8BC),
-          scrim: Color(0xFF000000),
+          error: Color(0xFFBA1A1A),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Color(0xFFFCFDF6),
+          modalBackgroundColor: Color(0xFFFCFDF6),
         ),
       );
 
   static ThemeData get themedark => ThemeData(
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF9AD0D3),
+          backgroundColor: Color(0xFF0A2049),
           foregroundColor: Color(0xFFFFFFFF),
           titleTextStyle: TextStyle(
             color: Color(0xFFFFFFFF),
@@ -82,43 +75,26 @@ class UiConfigTheme {
             letterSpacing: 0.15,
           ),
           systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Color(0xFF9AD0D3),
+            statusBarColor: Color(0xFF121212),
             statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.light,
-            systemNavigationBarColor: Color(0xFF9AD0D3),
-            systemNavigationBarDividerColor: Color(0xFF9AD0D3),
+            statusBarBrightness: Brightness.dark,
+            systemNavigationBarColor: Color(0xFF121212),
+            systemNavigationBarDividerColor: Color(0xFF121212),
             systemNavigationBarIconBrightness: Brightness.light,
           ),
         ),
-        colorScheme: const ColorScheme(
-          brightness: Brightness.dark,
+        iconTheme: const IconThemeData(
+          color: Color(0xFFD1E8E2),
+        ),
+        colorScheme: const ColorScheme.dark(
           primary: Color(0xFF9AD0D3),
-          onPrimary: Color(0xFFFFFFFF),
-          primaryContainer: Color(0xFF8DFB77),
-          onPrimaryContainer: Color(0xFF002200),
-          secondary: Color.fromARGB(255, 69, 133, 206),
-          onSecondary: Color(0xFFFFFFFF),
-          secondaryContainer: Color.fromARGB(255, 0, 229, 245),
-          onSecondaryContainer: Color(0xFF002200),
-          tertiary: Color.fromARGB(255, 20, 99, 216),
-          onTertiary: Color(0xFFFFFFFF),
-          tertiaryContainer: Color(0xFFB1F49D),
-          onTertiaryContainer: Color(0xFF012200),
-          error: Color(0xFFBA1A1A),
-          errorContainer: Color(0xFFFFDAD6),
-          onError: Color(0xFFFFFFFF),
-          onErrorContainer: Color(0xFF410002),
-          surface: Color(0xFFFCFDF6),
-          onSurface: Color(0xFF1A1C18),
-          onSurfaceVariant: Color(0xFF43483F),
-          outline: Color(0xFF73796E),
-          onInverseSurface: Color(0xFFF1F1EB),
-          inverseSurface: Color(0xFF2F312D),
-          inversePrimary: Color(0xFF72DE5E),
-          shadow: Color(0xFF000000),
-          surfaceTint: Color(0xFF9AD0D3),
-          outlineVariant: Color(0xFFC3C8BC),
-          scrim: Color(0xFF000000),
+          secondary: Color(0xFF457B9D),
+          surface: Color(0xFF121212),
+          error: Color(0xFFCF6679),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Color(0xFF0A2049),
+          modalBackgroundColor: Color(0xFF0A2049),
         ),
       );
 }

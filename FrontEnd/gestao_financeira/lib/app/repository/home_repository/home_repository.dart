@@ -4,5 +4,6 @@ abstract class HomeRepository {
   Future<List<MovimentacaoModel>> getMovimentacoes();
   Future<bool> novaMovimentacao(MovimentacaoModel movimentacao);
   Future<bool> removerMovimentacao(MovimentacaoModel movimentacao);
-  Future<double> setSaldo(double value, bool removendo);
+  Future<double> setSaldo(MovimentacaoModel mov, bool removendo);
+  Future<List<MovimentacaoModel>> getMovimentacoesDoMes(int mes);
 }

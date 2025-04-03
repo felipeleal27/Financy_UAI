@@ -1,3 +1,4 @@
+import 'package:gestao_financeira/app/database/local_storage/local_storage.dart';
 import 'package:gestao_financeira/app/repository/splash_screen_repository/splash_screen_repository.dart';
 import 'package:mobx/mobx.dart';
 
@@ -8,10 +9,13 @@ class SplashScreenViewmodel = SplashScreenViewmodelBase
 
 abstract class SplashScreenViewmodelBase with Store {
   final SplashScreenRepository _splashScreenRepository;
+  final LocalStorage _localStorage;
 
   SplashScreenViewmodelBase({
     required SplashScreenRepository splashScreenRepository,
-  }) : _splashScreenRepository = splashScreenRepository;
+    required LocalStorage localStorage,
+  })  : _splashScreenRepository = splashScreenRepository,
+        _localStorage = localStorage;
 
   @observable
   Duration? timer;
@@ -20,5 +24,13 @@ abstract class SplashScreenViewmodelBase with Store {
     await _splashScreenRepository.calcularSaldoTotal();
   }
 
-  
+  @observable
+  bool isDark = false;
+
+  @action
+  Future<void> setTheme() async {
+    isDark = await _localStorage.isThemeDark();
+  }
+
+
 }
