@@ -52,7 +52,7 @@ class _AppBarHomeState extends State<AppBarHome> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'Felipe da Silva Leal',
+                        'Olá, Felipe da Silva Leal',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                         ),
